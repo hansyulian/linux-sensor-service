@@ -10,13 +10,17 @@ const port = appConfig.port;
 
 app.get("/", async (req: Request, res: Response) => {
   try {
-    const [temperature, hdd,zpool] = await Promise.all([sensors.readCpuTemperature(),
+    const [temperature, hdds,zpool,pings] = await Promise.all([
+      sensors.readCpuTemperature(),
       sensors.readHddStates(appConfig.hddNames),
       sensors.readZpoolStatus(),
+      sensors.pings(appConfig.pingTargets),
     ]);
+    console.log(pings);
     res.json({
       temperature,
-      hdd,
+      hdds,
+      pings,
       zpool,
     });
   } catch (err: any) {

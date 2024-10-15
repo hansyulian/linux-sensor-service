@@ -4,7 +4,9 @@ export const sensors = {
   readCpuTemperature,
   readHddStates,
   readHddState,
-  readZpoolStatus
+  readZpoolStatus,
+  pings,
+  ping,
 };
 
 async function readCpuTemperature() {
@@ -133,6 +135,28 @@ async function readZpoolStatus():Promise<ZpoolResult>{
       write: '',
       state: 'ERROR',
 
+    }
+  }
+}
+
+async function pings(targets:string[]){
+  const result = await Promise.all(targets.map(target => ping(target)));
+  return result;
+}
+
+async function ping(target: string){
+  try {
+    const stringResult = await execPromise('ping -c 1',target);
+    const match = stringResult.match(/time=([0-9]+(\.[0-9]+)?)/);
+    const result = !match ? undefined : match[1];
+    return {
+      target,
+      result,
+    }
+  } catch (err:any){
+    return {
+      target,
+      error: err.message,
     }
   }
 }
